@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kimia Analisis: Misi Analis Laboratorium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#06142b;overflow:hidden;font-family:"Segoe UI",Roboto,Arial,sans-serif;color:#fff}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform-origin:center center;background:#0f2747;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;padding:36px 56px;flex-direction:column}
+.screen.on{display:flex}
+h1{font-size:50px;line-height:1.15;color:#ffd166}
+h2{font-size:38px;color:#ffd166;margin-bottom:14px}
+p,li{font-size:23px;line-height:1.5}
+.btn{font-family:inherit;font-size:24px;font-weight:700;border:none;border-radius:14px;padding:14px 30px;min-height:56px;cursor:pointer;background:#ffd166;color:#10233f;transition:transform .1s}
+.btn:hover{transform:translateY(-2px)}
+.btn.sec{background:#dbe7f7}
+.btn.ghost{background:transparent;color:#fff;border:3px solid #9fb8dc}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.row{display:flex;gap:18px;align-items:center}
+.spacer{flex:1}
+.card{background:#fff;color:#10233f;border-radius:18px;padding:20px 24px}
+/* home */
+#home{justify-content:center}
+#home .hero{display:flex;gap:40px;align-items:center}
+#home .txt{flex:1}
+.badge{display:inline-block;background:#1f4a85;border-radius:999px;padding:6px 18px;font-size:20px;margin-bottom:14px;color:#cfe3ff}
+.pemantik{font-size:28px;font-style:italic;color:#8ee3c8;margin:16px 0}
+.desc{font-size:22px;color:#e6efff;line-height:1.55;margin-bottom:22px}
+.art{width:340px;height:340px;background:#173a6b;border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:150px;flex:none}
+/* guide */
+.glist{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0 18px}
+.glist .card{font-size:21px;line-height:1.45}
+.glist b{color:#c2410c}
+/* menu */
+.levels{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin:10px 0}
+.lv{background:#fff;color:#10233f;border-radius:18px;padding:18px 12px;text-align:center;cursor:pointer;border:4px solid transparent;min-height:300px;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:inherit}
+.lv .n{font-size:22px;font-weight:700;color:#1f4a85}
+.lv .ic{font-size:60px}
+.lv .t{font-size:21px;font-weight:700;line-height:1.2}
+.lv .g{font-size:17px;color:#445;line-height:1.3}
+.lv .st{font-size:28px;margin-top:auto;color:#e59f00;letter-spacing:2px}
+.lv.locked{background:#5a6b86;color:#d4deee;cursor:not-allowed}
+.lv.locked .n{color:#d4deee}
+.lv:not(.locked):hover{border-color:#ffd166}
+/* game */
+.hud{display:flex;gap:18px;align-items:center;background:#173a6b;border-radius:16px;padding:10px 20px;margin-bottom:14px}
+.hud .pill{font-size:23px;font-weight:700}
+.prog{flex:1;height:16px;background:#0b1c38;border-radius:99px;overflow:hidden}
+.prog>i{display:block;height:100%;background:#8ee3c8;width:0;transition:width .3s}
+#task{font-size:25px;font-weight:700;margin-bottom:10px;color:#fff}
+#play{flex:1;position:relative}
+#fb{min-height:62px;border-radius:14px;padding:12px 20px;font-size:22px;font-weight:600;margin-top:10px;display:flex;align-items:center;gap:14px}
+#fb.ok{background:#d1fae5;color:#065f46}
+#fb.bad{background:#fee2e2;color:#991b1b}
+#fb.info{background:#dbeafe;color:#1e3a8a}
+.opt{display:block;width:100%;text-align:left;font-family:inherit;font-size:23px;font-weight:600;background:#fff;color:#10233f;border:4px solid #fff;border-radius:14px;padding:14px 20px;margin-bottom:12px;cursor:pointer;min-height:58px}
+.opt:hover:not(:disabled){border-color:#ffd166}
+.opt.good{background:#d1fae5;border-color:#10b981}
+.opt.wrong{background:#fee2e2;border-color:#ef4444;opacity:.8}
+.q{font-size:28px;font-weight:700;line-height:1.4;margin-bottom:16px}
+.shake{animation:sh .35s}
+@keyframes sh{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.timer{height:14px;background:#0b1c38;border-radius:99px;overflow:hidden;margin-bottom:14px}
+.timer>i{display:block;height:100%;background:#ffd166;width:100%}
+/* match */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.m{display:block;width:100%;font-family:inherit;text-align:left;font-size:21px;font-weight:600;background:#fff;color:#10233f;border:4px solid #fff;border-radius:14px;padding:10px 16px;margin-bottom:10px;min-height:66px;cursor:pointer;line-height:1.3}
+.m.sel{border-color:#ffd166;background:#fff6d6}
+.m.done{background:#d1fae5;border-color:#10b981;cursor:default}
+/* order */
+.ordwrap{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.slot{background:#173a6b;border:3px dashed #7ea3d6;border-radius:14px;padding:8px 14px;margin-bottom:9px;min-height:54px;font-size:20px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.slot b{background:#ffd166;color:#10233f;border-radius:50%;min-width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.slot.full{background:#fff;color:#10233f;border-style:solid;border-color:#fff}
+.slot.ok{background:#d1fae5;border-color:#10b981;color:#064e3b}
+.slot.bad{background:#fee2e2;border-color:#ef4444;color:#7f1d1d}
+/* slots diagram */
+.diagram{display:flex;align-items:stretch;gap:8px;margin:6px 0 14px}
+.node{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;text-align:center;font-weight:700}
+.arrow{align-self:center;font-size:36px;color:#ffd166}
+.drop{flex:1;min-height:170px;background:#173a6b;border:4px dashed #7ea3d6;border-radius:16px;padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;font-size:19px;cursor:pointer}
+.drop .hint{color:#cfe3ff;line-height:1.3}
+.drop.ok{background:#d1fae5;color:#064e3b;border:4px solid #10b981}
+.drop.ok .hint{color:#065f46}
+.drop .big{font-size:48px}
+.drop.over{border-color:#ffd166}
+.tray{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.chip{font-family:inherit;font-size:22px;font-weight:700;background:#fff;color:#10233f;border:4px solid #fff;border-radius:14px;padding:10px 18px;cursor:grab;min-height:60px}
+.chip.sel{border-color:#ffd166;background:#fff6d6}
+.chip.used{display:none}
+/* overlay */
+#ov{position:absolute;inset:0;background:rgba(6,20,43,.88);display:none;align-items:center;justify-content:center;z-index:5}
+#ov.on{display:flex}
+#ov .box{background:#fff;color:#10233f;border-radius:24px;padding:34px 46px;width:700px;text-align:center}
+#ov h2{color:#1f4a85}
+#ov .stars{font-size:60px;color:#e59f00;margin:6px 0}
+#ov p{margin-bottom:8px}
+/* result */
+.res{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin:6px 0 16px}
+.res .card{font-size:21px;line-height:1.45}
+.big-score{font-size:64px;font-weight:800;color:#1f4a85;line-height:1}
+.mute{position:absolute;right:20px;top:14px;z-index:3;font-size:20px;min-height:44px;padding:6px 16px}
+</style>
+</head>
+<body>
+<div id="stage">
+<button class="btn ghost mute" id="muteBtn" aria-label="Suara">🔊 Suara</button>
+
+<!-- LAMAN MUKA -->
+<section class="screen on" id="home">
+  <div class="hero">
+    <div class="txt">
+      <span class="badge">Gim Edukasi • Kimia Analisis</span>
+      <h1>Kimia Analisis: Misi Analis Laboratorium</h1>
+      <p class="pemantik">Bisakah kamu menentukan konsentrasi larutan tanpa salah hitung?</p>
+      <p class="desc">Halo, teman-teman! Di gim ini kamu menjadi analis laboratorium yang menyelesaikan 5 misi: mengenali alat gelas, menyusun langkah titrasi, menghitung konsentrasi larutan, menata alur kerja analisis, hingga mengambil keputusan cepat saat ada kendala di laboratorium. Kamu akan melatih ketelitian, pemecahan masalah, dan manajemen waktu seperti analis sungguhan. Setiap jawabanmu langsung dibahas, jadi kamu belajar sambil bermain. Kumpulkan skor dan bintang tertinggi, ya!</p>
+      <div class="row">
+        <button class="btn" id="goStart">▶ Mulai Misi</button>
+        <button class="btn sec" id="goGuide">📖 Panduan</button>
+      </div>
+    </div>
+    <div class="art" aria-hidden="true">⚗️</div>
+  </div>
+</section>
+
+<!-- PANDUAN -->
+<section class="screen" id="guide">
+  <h2>📖 Panduan Bermain</h2>
+  <div class="glist">
+    <div class="card"><b>Tujuan.</b> Menyelesaikan 5 level misi tentang dasar kimia analisis dengan nyawa dan waktu yang terbatas.</div>
+    <div class="card"><b>Nyawa ❤️.</b> Tiap level punya 3 nyawa. Jawaban salah mengurangi 1 nyawa. Jika habis, kamu mengulang level itu.</div>
+    <div class="card"><b>Cara bermain.</b> Level 1: pilih alat lalu fungsinya. Level 2: ketuk langkah sesuai urutan. Level 3 dan 5: pilih jawaban. Level 4: pilih komponen lalu ketuk kotak tujuan (atau seret).</div>
+    <div class="card"><b>Skor ⭐.</b> Jawaban benar +20 poin. Level 5 punya bonus kecepatan. Sisa nyawa menentukan bintang (1 sampai 3).</div>
+    <div class="card"><b>Navigasi.</b> Level dibuka berurutan, tetapi level yang sudah selesai boleh diulang dari Menu kapan saja untuk memperbaiki skor.</div>
+    <div class="card"><b>Umpan balik.</b> Setiap tindakan langsung diberi warna, pesan, dan suara. Baca penjelasannya, karena itu bahan belajarmu.</div>
+  </div>
+  <div class="row"><button class="btn ghost" data-go="home">◀ Kembali</button><span class="spacer"></span><button class="btn" data-go="menu">Menu Misi ▶</button></div>
+</section>
+
+<!-- MENU -->
+<section class="screen" id="menu">
+  <h2>🗺️ Menu Misi</h2>
+  <p id="menuInfo">Pilih level untuk dimainkan.</p>
+  <div class="levels" id="levels"></div>
+  <div class="row"><button class="btn ghost" data-go="home">◀ Beranda</button><button class="btn sec" data-go="guide">📖 Panduan</button><span class="spacer"></span><button class="btn" id="toCredit">Informasi Kreator ▶</button></div>
+</section>
+
+<!-- GAME -->
+<section class="screen" id="game">
+  <div class="hud">
+    <span class="pill" id="hLv">Level 1 dari 5</span>
+    <div class="prog"><i id="hProg"></i></div>
+    <span class="pill" id="hHeart">❤️❤️❤️</span>
+    <span class="pill" id="hScore">Skor 0</span>
+    <button class="btn sec" id="hMenu" style="min-height:46px;padding:6px 18px;font-size:20px">☰ Menu</button>
+  </div>
+  <div id="task"></div>
+  <div id="play"></div>
+  <div id="fb" class="info">Selamat bertugas, Analis!</div>
+  <div id="ov"><div class="box" id="ovBox"></div></div>
+</section>
+
+<!-- HASIL -->
+<section class="screen" id="result">
+  <h2>🏆 Hasil Akhir Misi</h2>
+  <div class="res">
+    <div class="card"><div>Total skor</div><div class="big-score" id="rScore">0</div><div style="font-size:34px;color:#e59f00;margin-top:8px" id="rStars"></div><p id="rRank" style="margin-top:8px;font-weight:700"></p></div>
+    <div class="card" id="rDetail"></div>
+  </div>
+  <div class="card" style="font-size:21px;margin-bottom:14px"><b>Refleksi:</b> Pada Level 5, mengapa data titrasi yang menyimpang jauh sebaiknya tidak langsung dirata-ratakan? Ceritakan jawabanmu kepada temanmu atau gurumu.</div>
+  <div class="row"><button class="btn ghost" data-go="menu">◀ Menu Misi</button><button class="btn sec" id="again">↻ Main Lagi</button><span class="spacer"></span><button class="btn" id="toCredit2">Informasi Kreator ▶</button></div>
+</section>
+
+<!-- KREATOR (halaman paling belakang) -->
+<section class="screen" id="credit">
+  <h2>👤 Informasi Kreator</h2>
+  <div class="card" style="font-size:24px;line-height:1.7">
+    <b>Kreator:</b> [Nama Kreator, gelar]<br>
+    <b>Organisasi/Satuan Pendidikan:</b> [Nama Sekolah/Institusi]<br>
+    <b>Topik:</b> Kimia Analisis (Dasar Analisis Laboratorium)
+  </div>
+  <div class="card" style="font-size:21px;line-height:1.55;margin-top:16px">
+    <b>Keterangan aset:</b> Seluruh ikon berupa karakter emoji bawaan perangkat, tata letak dibuat dengan HTML dan CSS, dan efek suara dibangkitkan langsung oleh kode (Web Audio). Tidak ada gambar, audio, atau tautan eksternal. Tidak ada data pribadi murid yang ditampilkan atau disimpan.
+  </div>
+  <div class="spacer"></div>
+  <div class="row"><button class="btn ghost" data-go="menu">◀ Menu Misi</button><span class="spacer"></span><button class="btn" data-go="home">Beranda ▶</button></div>
+</section>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s){return document.querySelector(s)};
+var stage=$("#stage");
+function fit(){var s=Math.min(window.innerWidth/1280,window.innerHeight/720);stage.style.transform="translate(-50%,-50%) scale("+s+")"}
+window.addEventListener("resize",fit);fit();
+
+/* ===== audio ===== */
+var muted=false,ac=null;
+function beep(f,d,t){if(muted)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.type=t||"sine";o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
+function sOk(){beep(660,.12);setTimeout(function(){beep(880,.18)},110)}
+function sBad(){beep(180,.3,"square")}
+function sWin(){[523,659,784,1046].forEach(function(f,i){setTimeout(function(){beep(f,.2)},i*140)})}
+$("#muteBtn").onclick=function(){muted=!muted;this.textContent=muted?"🔇 Senyap":"🔊 Suara"};
+
+/* ===== data ===== */
+var LV=[
+{ic:"⚗️",name:"Kenali Alat Gelas",goal:"Cocokkan alat laboratorium dengan fungsinya",type:"match",
+ pairs:[["⚗️","Erlenmeyer","Wadah sampel saat titrasi karena mudah digoyang"],["🧪","Buret","Meneteskan titran dengan volume terukur teliti"],["💧","Pipet Volumetri","Mengambil larutan bervolume tetap secara akurat"],["🫙","Labu Ukur","Membuat larutan dengan volume dan konsentrasi tepat"],["⚖️","Neraca Analitik","Menimbang massa zat dengan ketelitian tinggi"]]},
+{ic:"📝",name:"Urutan Titrasi",goal:"Urutkan langkah titrasi asam-basa",type:"order",
+ steps:["Bilas buret dengan larutan titran, lalu isi sampai skala nol","Pipet 20 mL larutan sampel ke dalam labu Erlenmeyer","Tambahkan 2–3 tetes indikator fenolftalein","Teteskan titran dari buret sambil Erlenmeyer terus digoyang","Hentikan titrasi saat warna merah muda tetap 30 detik","Catat volume titran yang terpakai"]},
+{ic:"🧮",name:"Hitung Konsentrasi",goal:"Pilih hasil hitungan molaritas yang tepat",type:"choice",
+ qs:[{q:"Sebanyak 4 g NaOH (Mr = 40) dilarutkan sampai volume 1 L. Molaritasnya ...",o:["0,01 M","0,1 M","1 M","4 M"],a:1,e:"n = 4/40 = 0,1 mol. M = 0,1 mol / 1 L = 0,1 M."},
+ {q:"Dari HCl 1 M, berapa mL yang diambil untuk membuat 100 mL HCl 0,1 M?",o:["1 mL","5 mL","10 mL","100 mL"],a:2,e:"Pengenceran: M1·V1 = M2·V2, sehingga 1 × V1 = 0,1 × 100 dan V1 = 10 mL."},
+ {q:"20 mL HCl dititrasi NaOH 0,1 M dan butuh 15 mL. Molaritas HCl adalah ...",o:["0,075 M","0,133 M","0,150 M","0,015 M"],a:0,e:"Ma·Va = Mb·Vb, jadi Ma = (0,1 × 15) / 20 = 0,075 M."},
+ {q:"Pada titrasi HCl dengan NaOH, fenolftalein berubah dari ... menjadi ...",o:["merah menjadi biru","tidak berwarna menjadi merah muda","kuning menjadi hijau","merah muda menjadi tidak berwarna"],a:1,e:"Fenolftalein tidak berwarna dalam asam dan merah muda dalam basa. Perubahan itu menandai titik akhir."},
+ {q:"5,85 g NaCl (Mr = 58,5) dilarutkan sampai 500 mL. Molaritasnya ...",o:["0,1 M","0,2 M","0,5 M","1 M"],a:1,e:"n = 5,85/58,5 = 0,1 mol. M = 0,1 mol / 0,5 L = 0,2 M."}]},
+{ic:"🧩",name:"Alur Analisis",goal:"Tempatkan tahap analisis pada posisi yang benar",type:"slots",
+ slots:[["📥","Pengambilan Sampel","Mengambil contoh yang mewakili",null],["⚖️","Penimbangan","Menimbang zat dengan neraca",null],["🫙","Pelarutan","Melarutkan di labu ukur",null],["🧪","Titrasi","Mengukur kadar dengan titran",null],["📋","Pelaporan","Menghitung dan mencatat hasil",null]]},
+{ic:"⏱️",name:"Analis Siaga",goal:"Putuskan tindakan tepat sebelum waktu habis",type:"choice",timed:25,
+ qs:[{q:"Asam pekat tumpah di meja kerja. Tindakan yang tepat?",o:["Biarkan sampai kering","Pakai APD, netralkan dengan natrium bikarbonat, lalu bersihkan","Siram air sebanyak-banyaknya ke meja","Tutup dengan tisu lalu tinggalkan"],a:1,e:"Pakai APD dulu, netralkan tumpahan asam dengan natrium bikarbonat, baru dibersihkan."},
+ {q:"Cara yang benar mengencerkan asam sulfat pekat?",o:["Tuang air ke asam pekat sekaligus","Tuang asam perlahan ke dalam air sambil diaduk","Campur dalam botol tertutup rapat","Panaskan asam lebih dulu"],a:1,e:"Asam ke dalam air, bukan sebaliknya, agar panas yang timbul tidak memercikkan asam."},
+ {q:"Posisi mata yang benar saat membaca volume pada buret?",o:["Lebih tinggi dari meniskus","Sejajar dengan dasar meniskus cekung","Lebih rendah dari meniskus","Dari jauh agar cepat"],a:1,e:"Mata sejajar dengan dasar meniskus untuk menghindari kesalahan paralaks."},
+ {q:"Larutan sampel menjadi merah muda tua pekat saat titrasi. Artinya?",o:["Titrasi sempurna, langsung catat","Titik akhir terlewati, titrasi perlu diulang","Indikator habis","Buret pasti bocor"],a:1,e:"Warna terlalu pekat berarti titran berlebih (over titration). Ulangi titrasi."},
+ {q:"Data titrasi triplo: 15,0; 15,1; 20,5 mL. Tindakan terbaik?",o:["Rata-ratakan ketiganya langsung","Telusuri penyebab data menyimpang, lalu ulangi titrasi","Ambil angka terbesar","Hapus semua data"],a:1,e:"Data 20,5 mL menyimpang jauh. Cari penyebabnya dan ulangi agar hasil konsisten."}]}
+];
+var S,cur,lives,lvScore,timerId,busy;
+function reset(){S={unlocked:1,stars:[0,0,0,0,0],score:[0,0,0,0,0]};}
+reset();
+function total(){return S.score.reduce(function(a,b){return a+b},0)}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function stars(n){return "★".repeat(n)+"☆".repeat(3-n)}
+
+/* ===== navigation ===== */
+function show(id){clearInterval(timerId);document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("on")});$("#"+id).classList.add("on");if(id==="menu")drawMenu();}
+document.querySelectorAll("[data-go]").forEach(function(b){b.onclick=function(){show(b.getAttribute("data-go"))}});
+$("#goStart").onclick=function(){show("menu")};
+$("#goGuide").onclick=function(){show("guide")};
+$("#hMenu").onclick=function(){show("menu")};
+$("#toCredit").onclick=$("#toCredit2").onclick=function(){show("credit")};
+$("#again").onclick=function(){reset();show("menu")};
+
+function drawMenu(){
+  var h="";
+  LV.forEach(function(l,i){
+    var lock=(i+1)>S.unlocked;
+    h+='<button class="lv'+(lock?" locked":"")+'" data-i="'+i+'"><span class="n">Level '+(i+1)+'</span><span class="ic">'+(lock?"🔒":l.ic)+'</span><span class="t">'+l.name+'</span><span class="g">'+l.goal+'</span><span class="st">'+(S.stars[i]?stars(S.stars[i]):"☆☆☆")+'</span></button>';
+  });
+  $("#levels").innerHTML=h;
+  $("#menuInfo").textContent="Total skor: "+total()+" • Level terbuka: "+Math.min(S.unlocked,5)+" dari 5";
+  document.querySelectorAll(".lv").forEach(function(b){b.onclick=function(){var i=+b.getAttribute("data-i");if(i+1>S.unlocked){sBad();$("#menuInfo").textContent="Level ini masih terkunci. Selesaikan level sebelumnya dulu.";return}startLevel(i)}});
+}
+
+/* ===== game core ===== */
+function hud(){
+  $("#hLv").textContent="Level "+(cur+1)+" dari 5";
+  $("#hHeart").textContent="❤️".repeat(Math.max(lives,0))+"🖤".repeat(3-Math.max(lives,0));
+  $("#hScore").textContent="Skor "+(total()-S.score[cur]+lvScore);
+}
+function fb(msg,k){var f=$("#fb");f.className=k;f.textContent=msg}
+function startLevel(i){cur=i;lives=3;lvScore=0;busy=false;show("game");$("#ov").classList.remove("on");$("#hProg").style.width="0";hud();
+  $("#task").textContent="Level "+(i+1)+": "+LV[i].name+" — "+LV[i].goal;
+  fb("Selamat bertugas, Analis! Kamu punya 3 nyawa.","info");
+  ({match:lvMatch,order:lvOrder,choice:lvChoice,slots:lvSlots})[LV[i].type](LV[i]);}
+function prog(p){$("#hProg").style.width=Math.round(p*100)+"%"}
+function lose(msg){lives--;sBad();hud();$("#play").classList.remove("shake");void $("#play").offsetWidth;$("#play").classList.add("shake");fb(msg+(lives>0?" Sisa nyawa: "+lives+".":""),"bad");if(lives<=0){clearInterval(timerId);busy=true;setTimeout(gameOver,900);return true}return false}
+function good(n){lvScore+=n||20;sOk();hud()}
+function overlay(html){$("#ovBox").innerHTML=html;$("#ov").classList.add("on")}
+function gameOver(){sBad();overlay('<h2>💔 Nyawa Habis</h2><p>Tenang, analis hebat belajar dari kesalahan. Baca penjelasan di tiap soal, lalu coba lagi!</p><div class="row" style="justify-content:center;margin-top:14px"><button class="btn sec" id="oMenu">Menu</button><button class="btn" id="oRetry">↻ Ulangi Level</button></div>');
+  $("#oMenu").onclick=function(){show("menu")};$("#oRetry").onclick=function(){startLevel(cur)}}
+function complete(){clearInterval(timerId);prog(1);busy=true;var st=Math.max(1,lives);S.stars[cur]=Math.max(S.stars[cur],st);S.score[cur]=Math.max(S.score[cur],lvScore);if(cur+1>=S.unlocked)S.unlocked=Math.min(5,cur+2);hud();sWin();
+  var last=cur===4;
+  overlay('<h2>🎉 Level '+(cur+1)+' Selesai!</h2><div class="stars">'+stars(st)+'</div><p>Skor level ini: <b>'+lvScore+'</b></p><p>Sisa nyawa: '+lives+' dari 3</p><div class="row" style="justify-content:center;margin-top:14px"><button class="btn sec" id="oMenu">Menu</button><button class="btn" id="oNext">'+(last?"Lihat Hasil Akhir ▶":"Level Berikutnya ▶")+'</button></div>');
+  $("#oMenu").onclick=function(){show("menu")};
+  $("#oNext").onclick=function(){last?showResult():startLevel(cur+1)}}
+
+/* ===== L1 match ===== */
+function lvMatch(L){
+  var n=L.pairs.length,done=0,selL=null,order=shuffle(L.pairs.map(function(_,i){return i}));
+  var h='<div class="cols"><div>';
+  L.pairs.forEach(function(p,i){h+='<button class="m" data-s="L" data-i="'+i+'">'+p[0]+' <b>'+p[1]+'</b></button>'});
+  h+='</div><div>';
+  order.forEach(function(i){h+='<button class="m" data-s="R" data-i="'+i+'">'+L.pairs[i][2]+'</button>'});
+  h+='</div></div>';
+  $("#play").innerHTML=h;
+  fb("Pilih satu alat di kiri, lalu pilih fungsinya di kanan.","info");
+  document.querySelectorAll(".m").forEach(function(b){b.onclick=function(){
+    if(busy||b.classList.contains("done"))return;
+    var side=b.getAttribute("data-s"),i=+b.getAttribute("data-i");
+    if(side==="L"){document.querySelectorAll('.m[data-s="L"]').forEach(function(x){x.classList.remove("sel")});b.classList.add("sel");selL=i;fb("Sekarang pilih fungsi alat "+L.pairs[i][1]+" di kolom kanan.","info");return}
+    if(selL===null){fb("Pilih alat di kolom kiri terlebih dahulu.","info");return}
+    if(selL===i){document.querySelector('.m[data-s="L"][data-i="'+i+'"]').className="m done";b.classList.add("done");good();done++;prog(done/n);fb("Tepat! "+L.pairs[i][1]+": "+L.pairs[i][2]+".","ok");selL=null;if(done===n)setTimeout(complete,700)}
+    else{var nm=L.pairs[selL][1];document.querySelector('.m[data-s="L"][data-i="'+selL+'"]').classList.remove("sel");selL=null;lose("Belum tepat. Fungsi itu bukan milik alat "+nm+".")}
+  }});
+}
+
+/* ===== L2 order ===== */
+function lvOrder(L){
+  var seq=[],pool=shuffle(L.steps.map(function(_,i){return i})),n=L.steps.length,marks=[];
+  function draw(){
+    var h='<div class="ordwrap"><div><p style="margin-bottom:8px;font-weight:700">Urutan langkahmu (ketuk untuk melepas):</p>';
+    for(var k=0;k<n;k++){var has=seq[k]!==undefined;h+='<div class="slot'+(has?" full":"")+(marks[k]||"")+'" data-k="'+k+'"><b>'+(k+1)+'</b><span>'+(has?L.steps[seq[k]]:"…")+'</span></div>'}
+    h+='</div><div><p style="margin-bottom:8px;font-weight:700">Langkah tersedia:</p>';
+    pool.forEach(function(i){if(seq.indexOf(i)<0)h+='<button class="m" data-i="'+i+'">'+L.steps[i]+'</button>'});
+    h+='<div class="row" style="margin-top:8px"><button class="btn sec" id="oRs">↻ Reset</button><button class="btn" id="oCk"'+(seq.length<n?" disabled":"")+'>✔ Periksa</button></div></div></div>';
+    $("#play").innerHTML=h;
+    document.querySelectorAll(".m").forEach(function(b){b.onclick=function(){if(busy)return;seq.push(+b.getAttribute("data-i"));marks=[];draw()}});
+    document.querySelectorAll(".slot.full").forEach(function(b){b.onclick=function(){if(busy)return;seq.splice(+b.getAttribute("data-k"),1);marks=[];draw()}});
+    $("#oRs").onclick=function(){if(busy)return;seq=[];marks=[];draw()};
+    $("#oCk").onclick=function(){
+      if(busy)return;var c=0;marks=seq.map(function(v,k){if(v===k){c++;return " ok"}return " bad"});
+      prog(c/n);
+      if(c===n){good(100);draw();fb("Sempurna! Urutan benar. Titrasi selesai dan data siap dihitung. +100 poin.","ok");setTimeout(complete,900)}
+      else{var d=lose(c+" dari "+n+" langkah sudah tepat. Perbaiki langkah yang berwarna merah.");draw();if(!d)fb(c+" dari "+n+" langkah sudah tepat. Ketuk langkah merah untuk melepas, lalu susun ulang. Sisa nyawa: "+lives+".","bad")}
+    };
+  }
+  draw();fb("Ketuk langkah satu per satu sesuai urutan titrasi asam-basa.","info");
+}
+
+/* ===== L3 & L5 choice ===== */
+function lvChoice(L){
+  var qs=L.qs,qi=0;
+  function ask(){
+    clearInterval(timerId);busy=false;
+    var Q=qs[qi];prog(qi/qs.length);
+    var h=(L.timed?'<div class="timer"><i id="tbar"></i></div>':"")+'<div class="q">Soal '+(qi+1)+' dari '+qs.length+'<br>'+Q.q+'</div>';
+    Q.o.forEach(function(t,i){h+='<button class="opt" data-i="'+i+'">'+String.fromCharCode(65+i)+'. '+t+'</button>'});
+    h+='<div id="nx"></div>';
+    $("#play").innerHTML=h;
+    fb(L.timed?"Waktumu "+L.timed+" detik. Pilih tindakan terbaik!":"Pilih jawaban yang paling tepat.","info");
+    var t0=Date.now(),left=L.timed;
+    if(L.timed){timerId=setInterval(function(){var el=(Date.now()-t0)/1000;left=Math.max(0,L.timed-el);var b=$("#tbar");if(b){b.style.width=(left/L.timed*100)+"%";if(left<8)b.style.background="#ef4444"}if(left<=0){clearInterval(timerId);timeUp()}},100)}
+    function reveal(){document.querySelectorAll(".opt").forEach(function(o){o.disabled=true;if(+o.getAttribute("data-i")===Q.a)o.classList.add("good")});}
+    function next(){var last=qi===qs.length-1;$("#nx").innerHTML='<button class="btn" id="oN" style="margin-top:4px">'+(last?"Selesai ▶":"Soal Berikutnya ▶")+'</button>';$("#oN").onclick=function(){if(last){complete()}else{qi++;ask()}}}
+    function timeUp(){if(busy)return;busy=true;reveal();var dead=lose("Waktu habis! Jawaban benar: "+String.fromCharCode(65+Q.a)+". "+Q.e);if(!dead)next()}
+    document.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
+      if(busy)return;var i=+b.getAttribute("data-i");
+      if(i===Q.a){clearInterval(timerId);busy=true;var bonus=L.timed?Math.floor(left/5)*2:0;good(20+bonus);reveal();fb("Benar! "+Q.e+(bonus?" (+"+bonus+" bonus waktu)":""),"ok");next()}
+      else{b.classList.add("wrong");b.disabled=true;lose("Belum tepat, coba pilihan lain.")}
+    }});
+  }
+  ask();
+}
+
+/* ===== L4 slots ===== */
+function lvSlots(L){
+  var sl=L.slots,n=sl.length,filled=[],selChip=null,order=shuffle(sl.map(function(_,i){return i}));
+  var h='<div class="diagram">';
+  sl.forEach(function(s,i){h+=(i?'<div class="arrow">➜</div>':"")+'<div class="drop" data-i="'+i+'"><span class="big">❔</span><span class="hint"><b>Posisi '+(i+1)+'</b><br>'+s[2]+'</span></div>'});
+  h+='</div><p style="text-align:center;margin-bottom:8px;font-weight:700">Komponen (ketuk lalu ketuk kotak tujuan, atau seret):</p><div class="tray">';
+  order.forEach(function(i){h+='<button class="chip" draggable="true" data-i="'+i+'">'+sl[i][0]+' '+sl[i][1]+'</button>'});
+  h+='</div>';
+  $("#play").innerHTML=h;
+  fb("Susun alur kerja analisis dari pengambilan sampel sampai pelaporan.","info");
+  function place(chip,drop){
+    if(busy||drop.classList.contains("ok"))return;
+    var ci=+chip.getAttribute("data-i"),di=+drop.getAttribute("data-i");
+    if(ci===di){drop.classList.add("ok");drop.innerHTML='<span class="big">'+sl[ci][0]+'</span><span class="hint"><b>'+sl[ci][1]+'</b></span>';chip.classList.add("used");chip.classList.remove("sel");selChip=null;filled.push(ci);good(20);prog(filled.length/n);fb("Tepat! "+sl[ci][1]+": "+sl[ci][2].toLowerCase()+".","ok");if(filled.length===n)setTimeout(complete,800)}
+    else{chip.classList.remove("sel");selChip=null;lose(sl[ci][1]+" tidak cocok di posisi "+(di+1)+" ("+sl[di][2].toLowerCase()+").")}
+  }
+  var chips=document.querySelectorAll(".chip"),drops=document.querySelectorAll(".drop");
+  chips.forEach(function(c){
+    c.onclick=function(){if(busy)return;chips.forEach(function(x){x.classList.remove("sel")});c.classList.add("sel");selChip=c;fb("Sekarang ketuk kotak tujuan untuk "+sl[+c.getAttribute("data-i")][1]+".","info")};
+    c.ondragstart=function(e){selChip=c;try{e.dataTransfer.setData("text/plain",c.getAttribute("data-i"))}catch(x){}};
+  });
+  drops.forEach(function(d){
+    d.onclick=function(){if(selChip)place(selChip,d);else fb("Pilih komponen di bawah dulu, lalu ketuk kotak ini.","info")};
+    d.ondragover=function(e){e.preventDefault();d.classList.add("over")};
+    d.ondragleave=function(){d.classList.remove("over")};
+    d.ondrop=function(e){e.preventDefault();d.classList.remove("over");if(selChip)place(selChip,d)};
+  });
+}
+
+/* ===== hasil ===== */
+function showResult(){
+  show("result");
+  var t=total(),sum=S.stars.reduce(function(a,b){return a+b},0);
+  $("#rScore").textContent=t;
+  $("#rStars").textContent=stars(Math.round(sum/5))+"  ("+sum+" dari 15 bintang)";
+  $("#rRank").textContent=sum>=13?"Analis Laboratorium Ahli! Luar biasa.":sum>=9?"Analis Laboratorium Handal. Sedikit lagi sempurna!":"Analis Laboratorium Pemula. Ulangi level untuk menaikkan bintangmu.";
+  var d="<b>Rincian kompetensi:</b><br>";
+  LV.forEach(function(l,i){d+=(i+1)+". "+l.name+": "+stars(S.stars[i])+" ("+S.score[i]+")<br>"});
+  $("#rDetail").innerHTML=d;
+}
+})();
+</script>
+</body>
+</html>
